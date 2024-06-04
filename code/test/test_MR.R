@@ -31,14 +31,12 @@ data_outcome <- TwoSampleMR::read_outcome_data(filename = "data/raw/GWAS/crc_com
                                                log_pval = FALSE)
 
 ## add missing EAF
-data_outcome1 <- functions::missing_EAF(df = data_outcome, 
-                                        reference = "/data/GWAS_data/work/references/1000genomes/phase3/ALL/stats.stats",
-                                        column_EAF = "eaf.outcome")
+# data_outcome1 <- functions::missing_EAF(df = data_outcome, 
+#                                         reference = "/data/GWAS_data/work/references/1000genomes/phase3/ALL/stats.stats",
+#                                         column_EAF = "eaf.outcome")
 
 # data_harmonise ====
-data_harmonise <- harmonise_data(exposure_dat = data_exposure, outcome_dat = data_outcome1, action = 2)
+data_harmonise <- harmonise_data(exposure_dat = data_exposure, outcome_dat = data_outcome, action = 2)
 
 # data_mr ====
 data_mr <- mr(data_harmonise)
-
-functions::missing_EAF
