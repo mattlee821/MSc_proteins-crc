@@ -19,12 +19,13 @@ We obtained data for (1) plasma proteins, (2) gene expression, and (3) CRC from:
 ## analysis
 1. MR analysis of plasma proteins and CRC
 2. MR analysis of CRC and plasma proteins
-2. colocalisation of plasma proteins and CRC
-3. colocalisation of plasma proteins and gene expression
-4. colocalisation of gene expression and plasma proteins
-5. MR analysis of gene expression and CRC
-6. Gene-Set enrichment analysis of associated proteins
-7. Sensitivity analysis 
+3. colocalisation of plasma proteins and CRC
+4. colocalisation of plasma proteins and gene expression
+5. colocalisation of gene expression and plasma proteins
+6. MR analysis of gene expression and CRC
+7. Gene-Set enrichment analysis of associated proteins
+8. Sensitivity analysis 
+9. Interpretation and visualization 
 
 ## code
 
