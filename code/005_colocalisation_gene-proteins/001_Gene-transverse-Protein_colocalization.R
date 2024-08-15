@@ -3,7 +3,6 @@
 
 rm(list = ls())
 set.seed(821)
-
 library(genetics.binaRies)
 library(coloc)
 library(viridis)
@@ -25,11 +24,11 @@ head(data_exposure)
 head(data_outcome)
 
 #Select SNP - Use SNP from MR Gene expression-CRC (rs62002705), exposure data = gene expression
-SNP <- "rs62002705" 
+SNP <- "rs62002705"  ###QUESTION: Is it correct that I used SNP from MR Gene expression-CRC (not SNP from MR plasma protein-CRC), as gene expression is an exposure data/location should belong to exposure data?
 
 # Harmonize data ====
-data_exposure$id.exposure <- data_exposure$exposure # Add id.exposure columns
-data_outcome$id.outcome <- data_outcome$outcome # Add id.outcome columns
+data_exposure$id.exposure <- data_exposure$exposure 
+data_outcome$id.outcome <- data_outcome$outcome 
 data_harmonise <- harmonise_data(
   exposure_dat = data_exposure,
   outcome_dat = data_outcome,
@@ -72,7 +71,7 @@ data_coloc_exposure <- list(
   varbeta = list_harmonise[[i]]$se.exposure^2,
   MAF = list_harmonise[[i]]$eaf.exposure,
   type = "quant",
-  N = 7445, #Not sure how to get sample size from GTX8, so I use 7445 now (number of rows in gene expression transverse data)
+  N = 7445,   ###QUESTION: Not sure how to get a sample size from GTX8, so I use 7445 now (number of obs in gene expression transverse data). I don't know which research article this gene expression is from.
   snp = list_harmonise[[i]]$SNP,
   sdY = sdY_exposure, 
   LD = ld, 
@@ -121,20 +120,21 @@ window <- list(
 # data check ====
 coloc::check_dataset(d = data_coloc_exposure, suffix = 1, warn.minp=5e-8)
 coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp=5e-8)
-#GOT warning message:In coloc::check_dataset(d = data_coloc_exposure, suffix = 1, warn.minp = 5e-08) : minimum p value is: 3.6029e-05
+###QUESTION: I got a warning message: In coloc::check_dataset(d = data_coloc_exposure, suffix = 1, warn.minp = 5e-08) : minimum p value is: 3.6029e-05, Does low p-value affect anything? or Did I do something wrong? 
 
-# plot dataset
-# cowplot::plot_grid(
-#   coloc_plot_dataset(d = data_coloc_exposure, label = "exposure"),
-#   coloc_plot_dataset(d = data_coloc_outcome, label = "outcome"),
-#   coloc_check_alignment(D = data_coloc_exposure),
-#   coloc_check_alignment(D = data_coloc_outcome),
-#   ncol = 2)
+#plot dataset
+cowplot::plot_grid(
+  coloc_plot_dataset(d = data_coloc_exposure, label = "exposure"),
+  coloc_plot_dataset(d = data_coloc_outcome, label = "outcome"),
+  coloc_check_alignment(D = data_coloc_exposure),
+  coloc_check_alignment(D = data_coloc_outcome),
+  ncol = 2)
 
 # finemap check ====
 SNP_causal_exposure <- coloc::finemap.abf(dataset = data_coloc_exposure) %>%
   filter(SNP.PP == max(SNP.PP)) %>%
   select(snp, SNP.PP)
+###QUESTION: I got a warning message: data_coloc_exposure, minimum p value is: 3.6029e-05, Does low p-value affect anything? or Did I do something wrong? 
 
 SNP_causal_outcome <- coloc::finemap.abf(dataset = data_coloc_outcome) %>%
   filter(SNP.PP == max(SNP.PP)) %>%
@@ -150,6 +150,8 @@ coloc_results <- lapply(priors, function(params) {
     p12 = params$p12
   )
 })
+###QUESTION: I got a warning message: data_coloc_exposure, minimum p value is: 3.6029e-05, Does low p-value affect anything? or Did I do something wrong? 
+
 
 # results table ====
 table_coloc <- data.frame()
@@ -197,4 +199,4 @@ plot <- coloc_sensitivity(
   dataset1 = NULL, dataset2 = NULL,
   data_check_trait1 = data_coloc_exposure, data_check_trait2 = data_coloc_outcome
 )
-plot
+plot #plot works, just takes time and not well-visuallized/size - clicked zoom but doesn't work, still not sure how to fix it

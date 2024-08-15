@@ -1,4 +1,6 @@
+#005_colocalisation_gene-proteins
 #Prepare outcome data for Colocalization - Plasma Protein (GREM1)
+
 rm(list = ls())
 set.seed(821)
 

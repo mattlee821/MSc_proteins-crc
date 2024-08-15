@@ -1,4 +1,6 @@
+#004_colocalisation_proteins-gene
 #Prepare outcome data for Colocalization - Gene expression transverse
+
 rm(list = ls())
 set.seed(821)
 
@@ -6,12 +8,12 @@ set.seed(821)
 library(data.table)
 library(dplyr)
 
-data_SNPlist <- fread("analysis/004_colocalisation_proteins-gene/GREM1-protein-SNPlist.txt" )
+data_SNPlist <- fread("analysis/004_colocalisation_proteins-gene/Exposure_GREM1-protein-SNPlist.txt" )
 head(data_SNPlist)
 
-#load and prepare outcome 
+#load and prepare outcome - Gene expression transverse
 data_outcome <- fread("data/raw/GWAS/colon-transverse_allpairs_ENSG00000166923.10.txt")
-# data_outcome <- data_outcome %>%     #?? DON'T Think we need this line, otherwisw we will have only 4 SNPs/data
+# data_outcome <- data_outcome %>%    ###QUESTION: DON'T Think we need this line (to cut off by p-value), otherwisw we will have only 4 SNPs/data. Is it correct? (I didn't run it)
 #   filter(pval_nominal <= 5e-4)
 data_outcome_ref<- fread("data/raw/GWAS/reference-chr15.txt") #load reference data
 data_outcome <- data_outcome %>%
@@ -26,8 +28,7 @@ data_outcome <- data_outcome %>%
     eaf.outcome = maf,  
     pval.outcome = pval_nominal,
     chr.outcome = chr, 
-    pos.outcome = variant_pos) #NOT SURE how to get sample size for GTX8
-
+    pos.outcome = variant_pos) 
 head(data_outcome)
 
 #extracted SNPs from outcome GWAS by SNPs in the windows (using data_SNPlist from exposure data)

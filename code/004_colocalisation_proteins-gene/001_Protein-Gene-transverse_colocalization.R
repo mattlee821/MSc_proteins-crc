@@ -3,7 +3,6 @@
 
 rm(list = ls())
 set.seed(821)
-
 library(genetics.binaRies)
 library(coloc)
 library(viridis)
@@ -24,14 +23,14 @@ data_outcome <- fread("analysis/004_colocalisation_proteins-gene/Outcome_GREM1-g
 head(data_exposure)
 head(data_outcome)
 
-#Select SNP - Use SNP from MR protein-CRC (rs2293582), exposure data = protein data
+#Select SNP - Use SNP from MR plasma protein-CRC (rs2293582), exposure data = protein data
 SNP <- fread("data/raw/GWAS/plasma-proteins.txt") %>%
   filter(exposure == "18878_15_GREM1_GREM1") %>%
   pull(SNP)
 
 # Harmonize data ====
-data_exposure$id.exposure <- data_exposure$exposure # Add id.exposure columns
-data_outcome$id.outcome <- data_outcome$outcome # Add id.outcome columns
+data_exposure$id.exposure <- data_exposure$exposure 
+data_outcome$id.outcome <- data_outcome$outcome 
 data_harmonise <- harmonise_data(
   exposure_dat = data_exposure,
   outcome_dat = data_outcome,
@@ -88,7 +87,7 @@ data_coloc_outcome <- list(
   varbeta = list_harmonise[[i]]$se.outcome^2,
   MAF = data_maf$MAF, 
   type = "cc",
-  N = 7445,  #Not sure how to get sample size from GTX8, so I use 7445 now (number of rows in gene expression transverse data)
+  N = 7445,   ###QUESTION: Not sure how to get a sample size from GTX8, so I use 7445 now (number of obs in gene expression transverse data). I don't know which research article this gene expression is from.
   snp = list_harmonise[[i]]$SNP,
   sdY = sdY_outcome,
   LD = ld,
@@ -123,15 +122,15 @@ window <- list(
 # data check ====
 coloc::check_dataset(d = data_coloc_exposure, suffix = 1, warn.minp=5e-8)
 coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp=5e-8)
-#GOT warning message:In coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp = 5e-08) : minimum p value is: 3.6029e-05
+###QUESTION: I got a warning message: In coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp = 5e-08) : minimum p value is: 3.6029e-05, Does low p-value in gene expression data affect anything? or Did I do something wrong? 
 
-# plot dataset
-# cowplot::plot_grid(
-#   coloc_plot_dataset(d = data_coloc_exposure, label = "exposure"),
-#   coloc_plot_dataset(d = data_coloc_outcome, label = "outcome"),
-#   coloc_check_alignment(D = data_coloc_exposure),
-#   coloc_check_alignment(D = data_coloc_outcome),
-#   ncol = 2)
+#plot dataset
+cowplot::plot_grid(
+  coloc_plot_dataset(d = data_coloc_exposure, label = "exposure"),
+  coloc_plot_dataset(d = data_coloc_outcome, label = "outcome"),
+  coloc_check_alignment(D = data_coloc_exposure),
+  coloc_check_alignment(D = data_coloc_outcome),
+  ncol = 2)
 
 # finemap check ====
 SNP_causal_exposure <- coloc::finemap.abf(dataset = data_coloc_exposure) %>%
@@ -141,6 +140,7 @@ SNP_causal_exposure <- coloc::finemap.abf(dataset = data_coloc_exposure) %>%
 SNP_causal_outcome <- coloc::finemap.abf(dataset = data_coloc_outcome) %>%
   filter(SNP.PP == max(SNP.PP)) %>%
   select(snp, SNP.PP)
+###QUESTION: I got a warning message: In coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp = 5e-08) : minimum p value is: 3.6029e-05, Does low p-value in gene expression data affect anything? or Did I do something wrong? 
 
 # coloc.abf ====
 coloc_results <- lapply(priors, function(params) {
@@ -152,6 +152,7 @@ coloc_results <- lapply(priors, function(params) {
     p12 = params$p12
   )
 })
+###QUESTION: I got a warning message: In coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp = 5e-08) : minimum p value is: 3.6029e-05, Does low p-value in gene expression data affect anything? or Did I do something wrong? 
 
 # results table ====
 table_coloc <- data.frame()
@@ -200,3 +201,4 @@ plot <- coloc_sensitivity(
   data_check_trait1 = data_coloc_exposure, data_check_trait2 = data_coloc_outcome
 )
 plot
+###QUESTION: Can't run this plot - I got an error " UseMethod("depth") :  no applicable method for 'depth' applied to an object of class "NULL"

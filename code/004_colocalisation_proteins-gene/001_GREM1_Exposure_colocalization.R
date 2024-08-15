@@ -1,4 +1,5 @@
-#Prepare exposure data for Colocalization - Protein
+#004_colocalisation_proteins-gene
+#Prepare exposure data for Colocalization - Plasma Protein
 
 rm(list = ls())
 set.seed(821)
@@ -56,11 +57,11 @@ data_window_2mb <- data_protein_chr %>%
 
 #Combine data frames and write the table for combinded windows
 data_protein_window <- bind_rows(data_window_250kb, data_window_500kb, data_window_1mb, data_window_2mb)
-write.table(data_protein_window, "analysis/003_colocalisation_proteins-CRC/GREM1-protien_window_coloc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(data_protein_window, "analysis/004_colocalisation_proteins-gene/Exposure_GREM1-protein-window-coloc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 #Extract only SNP from exposures
 data_protein_SNPlist <- data_protein_window %>%
   select(SNP) %>% 
   unique() %>%
   as.data.frame()
-write.table(data_protein_SNPlist, "analysis/003_colocalisation_proteins-CRC/GREM1-protein_SNPlist.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(data_protein_SNPlist, "analysis/004_colocalisation_proteins-gene/Exposure_GREM1-protein-SNPlist.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
