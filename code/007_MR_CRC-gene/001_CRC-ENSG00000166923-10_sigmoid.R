@@ -10,19 +10,7 @@ library(functions)
 
 #Load and Filter Exposure Data (CRC Data)
 data_exposure <- fread("data/raw/GWAS/data_exposure.txt") %>%
-  filter(id.exposure == 'fernandez-rozadilla_2022_PMID36539618;crc_combined_GECCO_allancestries;CRC') %>%
-  filter(pval.exposure <= 5e-4) %>% #Do we need to filter CRC data based on p-value <= 5e-4? Try - Result doesn't change with/without this p-val (102 obs)
-  rename(rsid = SNP,
-         pval = pval.exposure)
-
-#clumping
-data_exposure <- ld_clump(
-  dat= data_exposure,
-  plink_bin = genetics.binaRies::get_plink_binary(),
-  bfile = "data/references/1000genomes/phase3/processed/ALL/ALL"
-) %>%
-  rename(SNP = rsid,
-         pval.exposure = pval)
+  filter(id.exposure == 'fernandez-rozadilla_2022_PMID36539618;crc_combined_GECCO_allancestries;CRC')
 
 #load and Prepare Outcome Data (Gene Expression)
 data_outcome <- fread("data/raw/GWAS/colon-sigmoid_allpairs_ENSG00000166923.10.txt")
@@ -49,7 +37,8 @@ data_outcome <- data_outcome %>%
 #Harmonise exposure and outcome data 
 data_harmonise <- harmonise_data(
   exposure_dat = data_exposure,
-  outcome_dat = data_outcome)
+  outcome_dat = data_outcome,
+  action = 2)
 ## Shorten names ====
 # Shorten names for id.exposure, exposure
 shorten_names <- function(name) {

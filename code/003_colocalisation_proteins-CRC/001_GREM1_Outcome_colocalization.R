@@ -1,3 +1,5 @@
+#Prepare outcome data for Colocalization - CRC
+
 rm(list = ls())
 set.seed(821)
 

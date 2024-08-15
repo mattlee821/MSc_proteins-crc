@@ -1,16 +1,9 @@
+#004_colocalisation_proteins-gene
+#Colocalization for protein -> gene expression transverse
+
 rm(list = ls())
 set.seed(821)
 
-# Load required libraries
-# if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
-# remotes::install_github("MRCIEU/genetics.binaRies", force = T)
-# remotes::install_github("explodecomputer/plinkbinr", force = F)
-# remotes::install_github("chr1swallace/coloc@main", force = T)
-# remotes::install_github("sjmgarnier/viridis", force = F)
-# remotes::install_github("chr1swallace/coloc@main",build_vignettes=TRUE,build = FALSE, force= T)
-# remotes::install_github("mattlee821/functions",build_vignettes=TRUE, build = FALSE)
-# install.packages("devtools")
-# devtools::install_github("boxiangliu/locuscomparer")
 library(genetics.binaRies)
 library(coloc)
 library(viridis)
@@ -25,13 +18,13 @@ library(tidyr)
 library(cowplot)
 library(plinkbinr)
 
-# Load data
-data_exposure <- fread("analysis/003_colocalisation_proteins-CRC/GREM1-protien-window-coloc.txt")
-data_outcome <- fread("analysis/003_colocalisation_proteins-CRC/GREM1-CRC-coloc.txt")
+# Load data - exposure = protein (windows) and outcome = gene expression transverse
+data_exposure <- fread("analysis/004_colocalisation_proteins-gene/Exposure_GREM1-protein-window-coloc.txt")
+data_outcome <- fread("analysis/004_colocalisation_proteins-gene/Outcome_GREM1-gene_coloc.txt")
 head(data_exposure)
 head(data_outcome)
 
-#Select SNP
+#Select SNP - Use SNP from MR protein-CRC (rs2293582), exposure data = protein data
 SNP <- fread("data/raw/GWAS/plasma-proteins.txt") %>%
   filter(exposure == "18878_15_GREM1_GREM1") %>%
   pull(SNP)
@@ -95,13 +88,13 @@ data_coloc_outcome <- list(
   varbeta = list_harmonise[[i]]$se.outcome^2,
   MAF = data_maf$MAF, 
   type = "cc",
-  N = 254791,  #actual sample size from the paper
+  N = 7445,  #Not sure how to get sample size from GTX8, so I use 7445 now (number of rows in gene expression transverse data)
   snp = list_harmonise[[i]]$SNP,
   sdY = sdY_outcome,
   LD = ld,
   position = list_harmonise[[i]]$pos.exposure,
   pval = list_harmonise[[i]]$pval.outcome
-  )
+)
 
 # VARS ====
 priors <- list(
@@ -130,6 +123,8 @@ window <- list(
 # data check ====
 coloc::check_dataset(d = data_coloc_exposure, suffix = 1, warn.minp=5e-8)
 coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp=5e-8)
+#GOT warning message:In coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp = 5e-08) : minimum p value is: 3.6029e-05
+
 # plot dataset
 # cowplot::plot_grid(
 #   coloc_plot_dataset(d = data_coloc_exposure, label = "exposure"),
@@ -194,6 +189,7 @@ for (j in seq_along(coloc_results)) {
   # Bind the current results to the accumulated table
   table_coloc <- bind_rows(table_coloc, results)
 }
+write.table(table_coloc, "analysis/004_colocalisation_proteins-gene/001_protein-genetransverse_table_coloc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 # sensitivity  ====
 plot <- coloc_sensitivity(
