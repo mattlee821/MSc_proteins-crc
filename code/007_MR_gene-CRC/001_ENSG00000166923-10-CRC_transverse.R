@@ -1,4 +1,5 @@
-###MR-Gene Expression and CRC (Sigmoid)
+#007_MR_gene-CRC
+###MR-Gene Expression and CRC (transverse)
 rm(list=ls())
 set.seed(821)
 
@@ -17,7 +18,7 @@ library(tidyverse)
 library(tidyr)
 
 # Load exposure data
-data_exposure <- fread("data/raw/GWAS/colon-sigmoid_allpairs_ENSG00000166923.10.txt")
+data_exposure <- fread("data/raw/GWAS/colon-transverse_allpairs_ENSG00000166923.10.txt")
 data_exposure <- data_exposure %>%
   filter(pval_nominal <= 5e-4)
 data_exposure_ref<- fread("data/raw/GWAS/reference-chr15.txt") #load reference data
@@ -46,24 +47,24 @@ data_exposure <- ld_clump(
 
 #Load and prepare outcome data
 data_outcome <- TwoSampleMR::read_outcome_data(filename = "data/raw/GWAS/crc_combined_GECCO_allancestries.txt.gz", 
-                                                   sep = "\t",
-                                                   snps = data_exposure$SNP, 
-                                                   phenotype_col = "phenotype", 
-                                                   id_col = "phenotype", 
-                                                   snp_col = "SNP", 
-                                                   beta_col = "BETA", 
-                                                   se_col = "SE", 
-                                                   pval_col = "P",
-                                                   effect_allele_col = "EA", 
-                                                   other_allele_col = "OA", 
-                                                   chr_col = "CHR", 
-                                                   pos_col = "POS",
-                                                   min_pval = 1e-200,
-                                                   log_pval = FALSE)
+                                               sep = "\t",
+                                               snps = data_exposure$SNP, 
+                                               phenotype_col = "phenotype", 
+                                               id_col = "phenotype", 
+                                               snp_col = "SNP", 
+                                               beta_col = "BETA", 
+                                               se_col = "SE", 
+                                               pval_col = "P",
+                                               effect_allele_col = "EA", 
+                                               other_allele_col = "OA", 
+                                               chr_col = "CHR", 
+                                               pos_col = "POS",
+                                               min_pval = 1e-200,
+                                               log_pval = FALSE)
 
 head(data_outcome)
 
-#MAF/eaf for outcome data ====
+#MAF/eaf for outcome data  ====
 data_maf <- fread("data/references/1000genomes/phase3/processed/ALL/stats.stats")
 data_maf <- data_maf %>%
   rename(SNP = Predictor,
@@ -83,7 +84,7 @@ data_harmonise <- harmonise_data(
   exposure_dat = data_exposure, 
   outcome_dat = data_outcome
 )
-write.table(data_harmonise, "analysis/006_MR_gene-CRC/001_ENSG00000166923-10_sigmoid_data_harmonise_gene-crc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(data_harmonise, "analysis/007_MR_gene-CRC/001_ENSG00000166923-10_transverse_data_harmonise_gene-crc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 # Perform MR analysis
 data_mr <- mr(data_harmonise)
@@ -94,4 +95,4 @@ table_mr <- data_mr %>%
   select(exposure, outcome, method, b, se, pval) %>%
   rename(Exposure = exposure, Outcome = outcome, Method = method, Estimate = b, Std_Error = se, P_Value = pval)
 print(table_mr)
-write.table(table_mr, "analysis/006_MR_gene-CRC/001_ENSG00000166923-10_sigmoid_table_mr_gene-crc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(table_mr, "analysis/007_MR_gene-CRC/001_ENSG00000166923-10_transverse_table_mr_gene-crc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)

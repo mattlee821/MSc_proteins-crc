@@ -1,4 +1,4 @@
-#007_colocalisation_gene-CRC
+#006-1_colocalisation_gene-CRC (transverse)
 #Colocalization for gene expression transverse -> CRC
 
 rm(list = ls())
@@ -18,13 +18,13 @@ library(cowplot)
 library(plinkbinr)
 
 # Load data - exposure = gene expression (windows) and outcome = CRC
-data_exposure <- fread("analysis/007_colocalisation_gene-CRC/Exposure_GREM1-gene_window_coloc.txt")
-data_outcome <- fread("analysis/007_colocalisation_gene-CRC/Outcome_GREM1-CRC_coloc.txt")
+data_exposure <- fread("analysis/006_colocalisation_gene-CRC/transverse/Exposure_GREM1-gene_transverse_window_coloc.txt")
+data_outcome <- fread("analysis/006_colocalisation_gene-CRC/transverse/Outcome_GREM1-CRC_transverse_coloc.txt")
 head(data_exposure)
 head(data_outcome)
 
-#Select SNP - Use SNP from MR Gene expression-CRC (rs62002705), exposure data = gene expression
-SNP <- "rs62002705"  ###QUESTION: Is it correct that I used SNP from MR Gene expression-CRC (not SNP from MR plasma protein-CRC), as gene expression is an exposure data/location should belong to exposure data?
+#Select SNP - Use SNP from MR Gene expression-CRC (rs62002705 - transverse), exposure data = gene expression
+SNP <- "rs62002705"  
 
 # Harmonize data ====
 data_exposure$id.exposure <- data_exposure$exposure 
@@ -71,7 +71,7 @@ data_coloc_exposure <- list(
   varbeta = list_harmonise[[i]]$se.exposure^2,
   MAF = list_harmonise[[i]]$eaf.exposure,
   type = "quant",
-  N = 7445,   ###QUESTION: Not sure how to get a sample size from GTX8, so I use 7445 now (number of obs in gene expression transverse data). I don't know which research article this gene expression is from.
+  N = 368,  #sample size for transverse
   snp = list_harmonise[[i]]$SNP,
   sdY = sdY_exposure, 
   LD = ld, 
@@ -85,7 +85,7 @@ data_coloc_outcome <- list(
   varbeta = list_harmonise[[i]]$se.outcome^2,
   MAF = data_maf$MAF, 
   type = "cc",
-  N = 254791,  #actual sample size from the paper
+  N = 254791,  
   snp = list_harmonise[[i]]$SNP,
   sdY = sdY_outcome,
   LD = ld,
@@ -119,22 +119,20 @@ window <- list(
 
 # data check ====
 coloc::check_dataset(d = data_coloc_exposure, suffix = 1, warn.minp=5e-8)
-###QUESTION: I got a warning message: In coloc::check_dataset(d = data_coloc_exposure, suffix = 1, warn.minp = 5e-08) : minimum p value is: 3.6029e-05, Does low p-value affect anything? or Did I do something wrong? 
 coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp=5e-8)
 
-# #plot dataset
-# cowplot::plot_grid(
-#   coloc_plot_dataset(d = data_coloc_exposure, label = "exposure"),
-#   coloc_plot_dataset(d = data_coloc_outcome, label = "outcome"),
-#   coloc_check_alignment(D = data_coloc_exposure),
-#   coloc_check_alignment(D = data_coloc_outcome),
-#   ncol = 2)
+#plot dataset
+cowplot::plot_grid(
+  coloc_plot_dataset(d = data_coloc_exposure, label = "exposure"),
+  coloc_plot_dataset(d = data_coloc_outcome, label = "outcome"),
+  coloc_check_alignment(D = data_coloc_exposure),
+  coloc_check_alignment(D = data_coloc_outcome),
+  ncol = 2)
 
 # finemap check ====
 SNP_causal_exposure <- coloc::finemap.abf(dataset = data_coloc_exposure) %>%
   filter(SNP.PP == max(SNP.PP)) %>%
   select(snp, SNP.PP)
-###QUESTION: I got a warning message: data_coloc_exposure, minimum p value is: 3.6029e-05, Does low p-value affect anything? or Did I do something wrong? 
 
 SNP_causal_outcome <- coloc::finemap.abf(dataset = data_coloc_outcome) %>%
   filter(SNP.PP == max(SNP.PP)) %>%
@@ -150,8 +148,6 @@ coloc_results <- lapply(priors, function(params) {
     p12 = params$p12
   )
 })
-###QUESTION: I got a warning message: data_coloc_exposure, minimum p value is: 3.6029e-05, Does low p-value affect anything? or Did I do something wrong? 
-
 
 # results table ====
 table_coloc <- data.frame()
@@ -189,7 +185,7 @@ for (j in seq_along(coloc_results)) {
   # Bind the current results to the accumulated table
   table_coloc <- bind_rows(table_coloc, results)
 }
-write.table(table_coloc, "analysis/007_colocalisation_gene-CRC/001_genetransverse-CRC_table_coloc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(table_coloc, "analysis/006_colocalisation_gene-CRC/transverse/001_genetransverse-CRC_table_coloc_1mb.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 # sensitivity  ====
 plot <- coloc_sensitivity(
@@ -199,4 +195,6 @@ plot <- coloc_sensitivity(
   dataset1 = NULL, dataset2 = NULL,
   data_check_trait1 = data_coloc_exposure, data_check_trait2 = data_coloc_outcome
 )
-plot #plot doesn't works,Error in UseMethod("depth") : no applicable method for 'depth' applied to an object of class "NULL"
+tiff(filename = "analysis/006_colocalisation_gene-CRC/transverse/plot-sensitivity_transverse_1mb.tiff", width = 1000, height = 800, units = "px")
+plot
+dev.off()

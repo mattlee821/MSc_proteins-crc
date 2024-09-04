@@ -1,4 +1,4 @@
-#005_colocalisation_gene-proteins
+#006-1_colocalisation_gene-CRC (transverse)
 #Prepare exposure data for Colocalization - Gene expression transverse
 
 rm(list = ls())
@@ -59,11 +59,11 @@ data_window_2mb <- data_exposure %>%
 
 #Combine data frames and write the table for combinded windows
 data_protein_window <- bind_rows(data_window_250kb, data_window_500kb, data_window_1mb, data_window_2mb)
-write.table(data_protein_window, "analysis/005_colocalisation_gene-proteins/Exposure_GREM1-gene_window_coloc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(data_protein_window, "analysis/006_colocalisation_gene-CRC/transverse/Exposure_GREM1-gene_transverse_window_coloc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 #Extract only SNP from exposures
 data_SNPlist <- data_protein_window %>%
   select(SNP) %>% 
   unique() %>%
   as.data.frame()
-write.table(data_SNPlist, "analysis/005_colocalisation_gene-proteins/Exposure_GREM1-gene_SNPlist.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(data_SNPlist, "analysis/006_colocalisation_gene-CRC/transverse/Exposure_GREM1-gene_transverse_SNPlist.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)

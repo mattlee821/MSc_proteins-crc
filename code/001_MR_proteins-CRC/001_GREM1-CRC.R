@@ -7,7 +7,7 @@ library(dplyr)
 remotes::install_github("mattlee821/functions")
 # install.packages("remotes")
 # remotes::install_github("MRCIEU/TwoSampleMR")
-library(functions) #Error
+library(functions) 
 library(TwoSampleMR)
 
 # Load and prepare exposure data

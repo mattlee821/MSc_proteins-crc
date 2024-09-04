@@ -1,3 +1,4 @@
+#007_MR_gene-CRC
 rm(list=ls())
 set.seed(821)
 
@@ -19,14 +20,6 @@ data_exposure_protein <- data_exposure_protein %>%
   filter(exposure == "18878_15_GREM1_GREM1") #load protein data and filter by protien
 head(data_exposure_protein)
 data_exposure_ref<- fread("data/raw/GWAS/reference-chr15.txt") #load reference data
-
-# data_exposure_ref_SNP <- data_exposure_ref %>%
-#   filter(rs_id_dbSNP151_GRCh38p7 == data_exposure_protein$SNP) #filter reference data from SNP in gwas protien
-# data_exposure_gene_SNP <- data_exposure_gene %>%
-#   filter(variant_id == data_exposure_ref_SNP$variant_id) #filter gene experssion data by variant_id from reference data
-# data_exposure_merge <- data_exposure_gene_SNP %>%
-#   left_join(data_exposure_ref_SNP, by = "variant_id") #merge data for final exposure data
-
 data_exposure_combind <- data_exposure_gene %>%
   left_join(data_exposure_ref, by = "variant_id") #merge data between gene expression and reference data (to get SNP)
 data_exposure_SNP <- data_exposure_combind %>%
@@ -75,11 +68,11 @@ data_harmonise_gene_crc <- harmonise_data(
 # Perform MR analysis
 data_mr_gene_crc <- mr(data_harmonise_gene_crc)
 print(data_mr_gene_crc)
-write.table(data_mr_gene_crc, "analysis/006_MR_gene-CRC/001_GREM1_data_harmonise_gene-crc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(data_mr_gene_crc, "analysis/007_MR_gene-CRC/001_GREM1_data_harmonise_gene-crc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 # Create MR results table
 table_mr_gene_crc <- data_mr_gene_crc %>%
   select(exposure, outcome, method, b, se, pval) %>%
   rename(Exposure = exposure, Outcome = outcome, Method = method, Estimate = b, Std_Error = se, P_Value = pval)
 print(table_mr_gene_crc)
-write.table(table_mr_gene_crc, "analysis/006_MR_gene-CRC/001_GREM1_table_mr_gene-crc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(table_mr_gene_crc, "analysis/007_MR_gene-CRC/001_GREM1_table_mr_gene-crc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)

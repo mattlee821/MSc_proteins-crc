@@ -1,4 +1,4 @@
-#005_colocalisation_gene-proteins
+#005-2_colocalisation_gene-proteins (sigmoid)
 #Prepare outcome data for Colocalization - Plasma Protein (GREM1)
 
 rm(list = ls())
@@ -9,7 +9,7 @@ library(data.table)
 library(dplyr)
 
 #Load SNP list from gene expression (exposure) data
-data_SNPlist <- fread("analysis/005_colocalisation_gene-proteins/Exposure_GREM1-gene_SNPlist.txt" )
+data_SNPlist <- fread("analysis/005_colocalisation_gene-proteins/sigmoid/Exposure_GREM1-gene_sigmoid_SNPlist.txt" )
 head(data_SNPlist)
 
 #load and prepare outcome 
@@ -30,4 +30,4 @@ data_outcome <- data_outcome %>%
 data_outcome <- data_outcome %>%
   mutate(outcome = sub(".*/(.*)\\.txt\\.gz\\.unzipped", "\\1", outcome))
 head(data_outcome)
-write.table(data_outcome, "analysis/005_colocalisation_gene-proteins/Outcome_GREM1-protein_coloc.txt", sep="\t",row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(data_outcome, "analysis/005_colocalisation_gene-proteins/sigmoid/Outcome_GREM1-protein_sigmoid_coloc.txt", sep="\t",row.names = FALSE, quote = FALSE, col.names = TRUE)

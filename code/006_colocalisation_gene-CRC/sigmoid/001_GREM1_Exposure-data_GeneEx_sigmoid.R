@@ -1,5 +1,5 @@
-#007_colocalisation_gene-CRC
-#Prepare exposure data for Colocalization - Gene expression transverse
+#006-2_colocalisation_gene-CRC (sigmoid)
+#Prepare exposure data for Colocalization - Gene expression sigmoid
 
 rm(list = ls())
 set.seed(821)
@@ -8,8 +8,8 @@ set.seed(821)
 library(data.table)
 library(dplyr)
 
-# Load exposure data - Gene expression transverse
-data_exposure <- fread("data/raw/GWAS/colon-transverse_allpairs_ENSG00000166923.10.txt")
+# Load exposure data - Gene expression sigmoid
+data_exposure <- fread("data/raw/GWAS/colon-sigmoid_allpairs_ENSG00000166923.10.txt")
 # data_exposure <- data_exposure %>%   ###QUESTION: DON'T Think we need this line (to cut off by p-value), otherwisw we will have only 4 SNPs/data. Is it correct? (I didn't run it)
 #   filter(pval_nominal <= 5e-4)
 data_exposure_ref<- fread("data/raw/GWAS/reference-chr15.txt") #load reference data
@@ -27,9 +27,9 @@ data_exposure <- data_exposure %>%
     chr.exposure = chr, 
     pos.exposure = variant_pos) 
 
-#Filter SNP in dataset - use SNP from MR Gene expression-CRC (rs62002705)
+#Filter SNP in dataset - use SNP from MR Gene expression-CRC (rs190287113) - SIGMOID 
 data_SNP <- data_exposure %>%
-  filter(SNP == "rs62002705") 
+  filter(SNP == "rs190287113") 
 ###QUESTION: Is it correct that I used SNP from MR Gene expression-CRC rs62002705 (not SNP from MR plasma protein-CRC), as gene expression is an exposure data. Different SNP affects number of data in each windows
 
 #Extract SNP chromosome
@@ -59,11 +59,11 @@ data_window_2mb <- data_exposure %>%
 
 #Combine data frames and write the table for combinded windows
 data_protein_window <- bind_rows(data_window_250kb, data_window_500kb, data_window_1mb, data_window_2mb)
-write.table(data_protein_window, "analysis/007_colocalisation_gene-CRC/Exposure_GREM1-gene_window_coloc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(data_protein_window, "analysis/006_colocalisation_gene-CRC/sigmoid/Exposure_GREM1-gene_sigmoid_window_coloc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 #Extract only SNP from exposures
 data_SNPlist <- data_protein_window %>%
   select(SNP) %>% 
   unique() %>%
   as.data.frame()
-write.table(data_SNPlist, "analysis/007_colocalisation_gene-CRC/Exposure_GREM1-gene_SNPlist.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(data_SNPlist, "analysis/006_colocalisation_gene-CRC/sigmoid/Exposure_GREM1-gene_sigmoid_SNPlist.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)

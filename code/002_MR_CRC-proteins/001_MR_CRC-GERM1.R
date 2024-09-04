@@ -5,7 +5,7 @@ set.seed(821)
 library(data.table)
 library(dplyr)
 library(TwoSampleMR)
-remotes::install_github("mattlee821/functions")
+#remotes::install_github("mattlee821/functions")
 library(gridExtra)
 library(ggplot2)
 library(patchwork)
@@ -59,15 +59,17 @@ data_mr_crc_protein <- mr(data_harmonise_crc_protein)
 
 # Perform MR for each SNP (i.e., Wald ratios)
 data_mr_singlesnp <- mr_singlesnp(data_harmonise_crc_protein)
+write.table(data_mr_singlesnp, "analysis/002_MR_CRC-proteins/table_data_mr_singlesnp_nonexclusion.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 # Test for heterogeneity in MR estimates across individual SNPs
 data_mr_heterogeneity <- mr_heterogeneity(data_harmonise_crc_protein, method_list = c("mr_ivw"))
-
+data_mr_heterogeneity
 # Check the intercept term in MR Egger regression
 data_mr_pleiotropy_test <- mr_pleiotropy_test(data_harmonise_crc_protein)
-
+data_mr_pleiotropy_test
 # Check for outlying SNPs using leave-one-out analysis
 data_mr_leaveoneout <- mr_leaveoneout(data_harmonise_crc_protein)
+write.table(data_mr_leaveoneout, "analysis/002_MR_CRC-proteins/table_data_mr_leaveoneout_nonexclusion.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 #Table for MR
 data_mr_crc_protein
@@ -80,12 +82,11 @@ write.table(table_mr_crc_protein, "analysis/002_MR_CRC-proteins/table_mr_crc-pro
 #Table for sensitivity 
 table_sensitivity <- data.frame(
   Test = c("Heterogeneity Test", "Pleiotropy Test"),
-  Statistic = c(data_mr_heterogeneity$Q, data_mr_pleiotropy_test$intercept),
-  P_value = c(data_mr_heterogeneity$pval, data_mr_pleiotropy_test$pval)
+  Statistic = c(data_mr_heterogeneity$Q, data_mr_pleiotropy_test$egger_intercept),
+  P_value = c(data_mr_heterogeneity$Q_pval, data_mr_pleiotropy_test$pval)
 )
 print(table_sensitivity)
 write.table(table_sensitivity, "analysis/002_MR_CRC-proteins/table_mr_crc-protien_sensitivity-nonexclusion.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
-
 
 # Generate plots
 plot_mr_scatter_plot <- mr_scatter_plot(data_mr_crc_protein, data_harmonise_crc_protein)[[1]]
@@ -120,9 +121,12 @@ write.table(data_harmonise_exclusion, "analysis/002_MR_CRC-proteins/data_harmoni
 # Perform MR and sensitivity analysis after exclusion
 data_mr_exclusion <- mr(data_harmonise_exclusion)
 data_mr_singlesnp_exclusion <- mr_singlesnp(data_harmonise_exclusion)
+write.table(data_mr_singlesnp_exclusion, "analysis/002_MR_CRC-proteins/table_data_mr_singlesnp_exclusion.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+
 data_mr_heterogeneity_exclusion <- mr_heterogeneity(data_harmonise_exclusion, method_list = c("mr_ivw"))
 data_mr_pleiotropy_test_exclusion <- mr_pleiotropy_test(data_harmonise_exclusion)
 data_mr_leaveoneout_exclusion <- mr_leaveoneout(data_harmonise_exclusion)
+write.table(data_mr_leaveoneout_exclusion, "analysis/002_MR_CRC-proteins/table_data_mr_leaveoneout_exclusion.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 # Table for MR analysis after exclusion
 table_mr_exclusion <- data_mr_exclusion %>%
@@ -134,8 +138,8 @@ write.table(table_mr_exclusion, "analysis/002_MR_CRC-proteins/table_mr_crc-proti
 #Table for sensitivity after exclusion
 table_sensitivity_exclusion <- data.frame(
   Test = c("Heterogeneity Test", "Pleiotropy Test"),
-  Statistic = c(data_mr_heterogeneity_exclusion$Q, data_mr_pleiotropy_test_exclusion$intercept),
-  P_value = c(data_mr_heterogeneity_exclusion$pval, data_mr_pleiotropy_test_exclusion$pval)
+  Statistic = c(data_mr_heterogeneity_exclusion$Q, data_mr_pleiotropy_test_exclusion$egger_intercept),
+  P_value = c(data_mr_heterogeneity_exclusion$Q_pval, data_mr_pleiotropy_test_exclusion$pval)
 )
 print(table_sensitivity_exclusion)
 write.table(table_sensitivity_exclusion, "analysis/002_MR_CRC-proteins/table_mr_crc-protien_sensitivity-exclusion.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
@@ -165,3 +169,57 @@ print(plot_mr_density_plot_exclusion)
 # Combine selected plots
 combined_plot_exclusion <- plot_mr_scatter_plot_exclusion + plot_mr_forest_plot_exclusion
 print(combined_plot_exclusion)
+
+#####To print ALL plots
+# Set up resolution
+plot_resolution <- 300  # 300 dpi for high-quality output
+
+# Define custom dimensions for each plot, with extra height for the tall mr_forest_plot
+dimensions <- list(
+  plot_mr_scatter_plot = c(width = 8, height = 6),
+  plot_mr_forest_plot = c(width = 8, height = 10),  # Increased height for a tall plot
+  plot_mr_leaveoneout_plot = c(width = 8, height = 10),
+  plot_mr_funnel_plot = c(width = 8, height = 6),
+  plot_mr_density_plot = c(width = 8, height = 6),
+  combined_plot = c(width = 16, height = 10),  # Combined plot might need extra width
+  plot_mr_scatter_plot_exclusion = c(width = 8, height = 6),
+  plot_mr_forest_plot_exclusion = c(width = 8, height = 10),  # Same increase for exclusion plot
+  plot_mr_leaveoneout_plot_exclusion = c(width = 8, height = 10),
+  plot_mr_funnel_plot_exclusion = c(width = 8, height = 6),
+  plot_mr_density_plot_exclusion = c(width = 8, height = 6),
+  combined_plot_exclusion = c(width = 16, height = 10)  # Adjust width for combined exclusion plot
+)
+save_directory <- "analysis/002_MR_CRC-proteins/plot"
+
+# Function to save plots with custom dimensions
+save_plot <- function(plot, filename, width, height, res) {
+  # Ensure the directory exists
+  if (!dir.exists(save_directory)) {
+    dir.create(save_directory, recursive = TRUE)
+  }
+  # Full path to save the plot
+  filepath <- file.path(save_directory, filename)
+  png(filepath, width = width, height = height, units = "in", res = res)
+  print(plot)
+  dev.off()
+}
+
+# Save each plot with custom dimensions
+save_plot(plot_mr_scatter_plot, "plot_mr_scatter_plot.png", dimensions$plot_mr_scatter_plot[1], dimensions$plot_mr_scatter_plot[2], plot_resolution)
+save_plot(plot_mr_forest_plot, "plot_mr_forest_plot.png", dimensions$plot_mr_forest_plot[1], dimensions$plot_mr_forest_plot[2], plot_resolution)
+save_plot(plot_mr_leaveoneout_plot, "plot_mr_leaveoneout_plot.png", dimensions$plot_mr_leaveoneout_plot[1], dimensions$plot_mr_leaveoneout_plot[2], plot_resolution)
+save_plot(plot_mr_funnel_plot, "plot_mr_funnel_plot.png", dimensions$plot_mr_funnel_plot[1], dimensions$plot_mr_funnel_plot[2], plot_resolution)
+save_plot(plot_mr_density_plot, "plot_mr_density_plot.png", dimensions$plot_mr_density_plot[1], dimensions$plot_mr_density_plot[2], plot_resolution)
+
+# Save the combined plot
+save_plot(combined_plot, "combined_plot.png", dimensions$combined_plot[1], dimensions$combined_plot[2], plot_resolution)
+
+# Save the second set of plots (after exclusions) with custom dimensions
+save_plot(plot_mr_scatter_plot_exclusion, "plot_mr_scatter_plot_exclusion.png", dimensions$plot_mr_scatter_plot_exclusion[1], dimensions$plot_mr_scatter_plot_exclusion[2], plot_resolution)
+save_plot(plot_mr_forest_plot_exclusion, "plot_mr_forest_plot_exclusion.png", dimensions$plot_mr_forest_plot_exclusion[1], dimensions$plot_mr_forest_plot_exclusion[2], plot_resolution)
+save_plot(plot_mr_leaveoneout_plot_exclusion, "plot_mr_leaveoneout_plot_exclusion.png", dimensions$plot_mr_leaveoneout_plot_exclusion[1], dimensions$plot_mr_leaveoneout_plot_exclusion[2], plot_resolution)
+save_plot(plot_mr_funnel_plot_exclusion, "plot_mr_funnel_plot_exclusion.png", dimensions$plot_mr_funnel_plot_exclusion[1], dimensions$plot_mr_funnel_plot_exclusion[2], plot_resolution)
+save_plot(plot_mr_density_plot_exclusion, "plot_mr_density_plot_exclusion.png", dimensions$plot_mr_density_plot_exclusion[1], dimensions$plot_mr_density_plot_exclusion[2], plot_resolution)
+
+# Save the combined exclusion plot
+save_plot(combined_plot_exclusion, "combined_plot_exclusion.png", dimensions$combined_plot_exclusion[1], dimensions$combined_plot_exclusion[2], plot_resolution)

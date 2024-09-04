@@ -1,4 +1,4 @@
-#005_colocalisation_gene-proteins
+#005-1_colocalisation_gene-proteins (transverse)
 #Colocalization for gene expression transverse -> protein
 
 rm(list = ls())
@@ -18,13 +18,13 @@ library(cowplot)
 library(plinkbinr)
 
 # Load data - exposure = gene expression (windows) and outcome = plasma protein
-data_exposure <- fread("analysis/005_colocalisation_gene-proteins/Exposure_GREM1-gene_window_coloc.txt")
-data_outcome <- fread("analysis/005_colocalisation_gene-proteins/Outcome_GREM1-protein_coloc.txt")
+data_exposure <- fread("analysis/005_colocalisation_gene-proteins/transverse/Exposure_GREM1-gene_transverse_window_coloc.txt")
+data_outcome <- fread("analysis/005_colocalisation_gene-proteins/transverse/Outcome_GREM1-protein_transverse_coloc.txt")
 head(data_exposure)
 head(data_outcome)
 
-#Select SNP - Use SNP from MR Gene expression-CRC (rs62002705), exposure data = gene expression
-SNP <- "rs62002705"  ###QUESTION: Is it correct that I used SNP from MR Gene expression-CRC (not SNP from MR plasma protein-CRC), as gene expression is an exposure data/location should belong to exposure data?
+#Select SNP - Use SNP from MR Gene expression-CRC (rs62002705 - transverse), exposure data = gene expression
+SNP <- "rs62002705"  
 
 # Harmonize data ====
 data_exposure$id.exposure <- data_exposure$exposure 
@@ -71,7 +71,7 @@ data_coloc_exposure <- list(
   varbeta = list_harmonise[[i]]$se.exposure^2,
   MAF = list_harmonise[[i]]$eaf.exposure,
   type = "quant",
-  N = 7445,   ###QUESTION: Not sure how to get a sample size from GTX8, so I use 7445 now (number of obs in gene expression transverse data). I don't know which research article this gene expression is from.
+  N = 368,
   snp = list_harmonise[[i]]$SNP,
   sdY = sdY_exposure, 
   LD = ld, 
@@ -120,7 +120,6 @@ window <- list(
 # data check ====
 coloc::check_dataset(d = data_coloc_exposure, suffix = 1, warn.minp=5e-8)
 coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp=5e-8)
-###QUESTION: I got a warning message: In coloc::check_dataset(d = data_coloc_exposure, suffix = 1, warn.minp = 5e-08) : minimum p value is: 3.6029e-05, Does low p-value affect anything? or Did I do something wrong? 
 
 #plot dataset
 cowplot::plot_grid(
@@ -134,7 +133,6 @@ cowplot::plot_grid(
 SNP_causal_exposure <- coloc::finemap.abf(dataset = data_coloc_exposure) %>%
   filter(SNP.PP == max(SNP.PP)) %>%
   select(snp, SNP.PP)
-###QUESTION: I got a warning message: data_coloc_exposure, minimum p value is: 3.6029e-05, Does low p-value affect anything? or Did I do something wrong? 
 
 SNP_causal_outcome <- coloc::finemap.abf(dataset = data_coloc_outcome) %>%
   filter(SNP.PP == max(SNP.PP)) %>%
@@ -150,8 +148,6 @@ coloc_results <- lapply(priors, function(params) {
     p12 = params$p12
   )
 })
-###QUESTION: I got a warning message: data_coloc_exposure, minimum p value is: 3.6029e-05, Does low p-value affect anything? or Did I do something wrong? 
-
 
 # results table ====
 table_coloc <- data.frame()
@@ -189,7 +185,7 @@ for (j in seq_along(coloc_results)) {
   # Bind the current results to the accumulated table
   table_coloc <- bind_rows(table_coloc, results)
 }
-write.table(table_coloc, "analysis/005_colocalisation_gene-proteins/001_genetransverse-protein_table_coloc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(table_coloc, "analysis/005_colocalisation_gene-proteins/transverse/001_genetransverse-protein_table_coloc_1mb.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 # sensitivity  ====
 plot <- coloc_sensitivity(
@@ -199,4 +195,6 @@ plot <- coloc_sensitivity(
   dataset1 = NULL, dataset2 = NULL,
   data_check_trait1 = data_coloc_exposure, data_check_trait2 = data_coloc_outcome
 )
-plot #plot works, just takes time and not well-visuallized/size - clicked zoom but doesn't work, still not sure how to fix it
+tiff(filename = "analysis/005_colocalisation_gene-proteins/transverse/plot-sensitivity_transverse_1mb.tiff", width = 1000, height = 800, units = "px")
+plot
+dev.off()

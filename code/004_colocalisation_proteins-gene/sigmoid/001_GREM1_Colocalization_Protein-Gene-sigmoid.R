@@ -1,5 +1,5 @@
-#004_colocalisation_proteins-gene
-#Colocalization for protein -> gene expression transverse
+#004-2_colocalisation_proteins-gene sigmoid
+#Colocalization for protein -> gene expression sigmoid
 
 rm(list = ls())
 set.seed(821)
@@ -17,9 +17,9 @@ library(tidyr)
 library(cowplot)
 library(plinkbinr)
 
-# Load data - exposure = protein (windows) and outcome = gene expression transverse
-data_exposure <- fread("analysis/004_colocalisation_proteins-gene/Exposure_GREM1-protein-window-coloc.txt")
-data_outcome <- fread("analysis/004_colocalisation_proteins-gene/Outcome_GREM1-gene_coloc.txt")
+# Load data - exposure = protein (windows) and outcome = gene expression sigmoid
+data_exposure <- fread("analysis/004_colocalisation_proteins-gene/sigmoid/Exposure_GREM1-protein-window-coloc.txt")
+data_outcome <- fread("analysis/004_colocalisation_proteins-gene/sigmoid/Outcome_GREM1-gene_sigmoid_coloc.txt")
 head(data_exposure)
 head(data_outcome)
 
@@ -87,7 +87,7 @@ data_coloc_outcome <- list(
   varbeta = list_harmonise[[i]]$se.outcome^2,
   MAF = data_maf$MAF, 
   type = "cc",
-  N = 7445,   ###QUESTION: Not sure how to get a sample size from GTX8, so I use 7445 now (number of obs in gene expression transverse data). I don't know which research article this gene expression is from.
+  N = 318,
   snp = list_harmonise[[i]]$SNP,
   sdY = sdY_outcome,
   LD = ld,
@@ -122,7 +122,6 @@ window <- list(
 # data check ====
 coloc::check_dataset(d = data_coloc_exposure, suffix = 1, warn.minp=5e-8)
 coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp=5e-8)
-###QUESTION: I got a warning message: In coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp = 5e-08) : minimum p value is: 3.6029e-05, Does low p-value in gene expression data affect anything? or Did I do something wrong? 
 
 #plot dataset
 cowplot::plot_grid(
@@ -140,7 +139,6 @@ SNP_causal_exposure <- coloc::finemap.abf(dataset = data_coloc_exposure) %>%
 SNP_causal_outcome <- coloc::finemap.abf(dataset = data_coloc_outcome) %>%
   filter(SNP.PP == max(SNP.PP)) %>%
   select(snp, SNP.PP)
-###QUESTION: I got a warning message: In coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp = 5e-08) : minimum p value is: 3.6029e-05, Does low p-value in gene expression data affect anything? or Did I do something wrong? 
 
 # coloc.abf ====
 coloc_results <- lapply(priors, function(params) {
@@ -152,7 +150,6 @@ coloc_results <- lapply(priors, function(params) {
     p12 = params$p12
   )
 })
-###QUESTION: I got a warning message: In coloc::check_dataset(d = data_coloc_outcome, suffix = 2, warn.minp = 5e-08) : minimum p value is: 3.6029e-05, Does low p-value in gene expression data affect anything? or Did I do something wrong? 
 
 # results table ====
 table_coloc <- data.frame()
@@ -190,7 +187,7 @@ for (j in seq_along(coloc_results)) {
   # Bind the current results to the accumulated table
   table_coloc <- bind_rows(table_coloc, results)
 }
-write.table(table_coloc, "analysis/004_colocalisation_proteins-gene/001_protein-genetransverse_table_coloc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
+write.table(table_coloc, "analysis/004_colocalisation_proteins-gene/sigmoid/001_protein-genesigmoid_table_coloc_1mb.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 # sensitivity  ====
 plot <- coloc_sensitivity(
@@ -200,5 +197,7 @@ plot <- coloc_sensitivity(
   dataset1 = NULL, dataset2 = NULL,
   data_check_trait1 = data_coloc_exposure, data_check_trait2 = data_coloc_outcome
 )
+
+tiff(filename = "analysis/004_colocalisation_proteins-gene/sigmoid/plot-sensitivity_sigmoid_1mb.tiff", width = 1000, height = 800, units = "px")
 plot
-###QUESTION: Can't run this plot - I got an error " UseMethod("depth") :  no applicable method for 'depth' applied to an object of class "NULL"
+dev.off()
