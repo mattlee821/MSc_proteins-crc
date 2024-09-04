@@ -1,4 +1,4 @@
-#006-2_colocalisation_gene-CRC (sigmoid)
+#006-2_colocalisation_gene-CRC (sigmoid) 
 #Colocalization for gene expression sigmoid -> CRC
 
 rm(list = ls())
