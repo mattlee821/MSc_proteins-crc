@@ -45,11 +45,11 @@ data_harmonise_protein_crc <- harmonise_data(
   exposure_dat = data_exposure_protein, 
   outcome_dat = data_outcome_crc
 )
+write.table(data_harmonise_protein_crc, "analysis/001_MR_proteins-CRC/data_harmonise_protein-crc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 # Perform MR analysis
 data_mr_protein_crc <- mr(data_harmonise_protein_crc)
 print(data_mr_protein_crc)
-write.table(data_mr_protein_crc, "analysis/001_MR_proteins-CRC/data_harmonise_protein-crc.txt", sep="\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
 
 # Create MR results table
 table_mr_protein_crc <- data_mr_protein_crc %>%
